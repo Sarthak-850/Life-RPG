@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(cuid())
+  username         String            @unique
+  email            String            @unique
+  passwordHash     String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  character        Character?
+  tasks            Task[]
+  taskCompletions  TaskCompletion[]
+  inventory        Inventory[]
+  userAchievements UserAchievement[]
+  activityLogs     ActivityLog[]
+}
+
+model Character {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title            String    @default("Novice Adventurer")
+  level            Int       @default(1)
+  xp               Int       @default(0)
+  gold             Int       @default(50)
+  strength         Int       @default(10)
+  intellect        Int       @default(10)
+  agility          Int       @default(10)
+  wisdom           Int       @default(10)
+  discipline       Int       @default(10)
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
+  lastActivityDate DateTime?
+  avatarColor      String    @default("purple")
+  equippedWeaponId String?
+  equippedArmorId  String?
+  equippedHeadId   String?
+  equippedAuraId   String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Task {
+  id              String           @id @default(cuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  category        String           // Coding, Study, Fitness, Health, Reading, Work, Personal, Mindfulness, Other
+  difficulty      String           // Easy, Medium, Hard, Epic
+  xpReward        Int
+  goldReward      Int
+  attributeReward String           // Strength, Intellect, Agility, Wisdom, Discipline
+  attributeAmount Int
+  isCompleted     Boolean          @default(false)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  completedAt     DateTime?
+  completions     TaskCompletion[]
+}
+
+model TaskCompletion {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  taskId          String
+  task            Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  xpEarned        Int
+  goldEarned      Int
+  attribute       String
+  attributeAmount Int
+  completedAt     DateTime @default(now())
+}
+
+model Item {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  price       Int
+  rarity      String      // Common, Rare, Epic, Legendary
+  type        String      // Weapon, Armor, Headwear, Aura, Relic, Theme
+  icon        String
+  statBonus   String?
+  createdAt   DateTime    @default(now())
+  inventory   Inventory[]
+}
+
+model Inventory {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId      String
+  item        Item     @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  isEquipped  Boolean  @default(false)
+  purchasedAt DateTime @default(now())
+
+  @@unique([userId, itemId])
+}
+
+model Achievement {
+  id               String            @id @default(cuid())
+  key              String            @unique
+  name             String
+  description      String
+  category         String            // Level, Quest, Streak, Economy, Attribute
+  requirementValue Int
+  xpReward         Int               @default(50)
+  goldReward       Int               @default(25)
+  icon             String
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  unlockedAt    DateTime    @default(now())
+
+  @@unique([userId, achievementId])
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String   // QUEST_COMPLETE, LEVEL_UP, ITEM_PURCHASED, ITEM_EQUIPPED, ACHIEVEMENT_UNLOCKED, STREAK_MILESTONE
+  title       String
+  description String
+  metadata    String?  // JSON string
+  createdAt   DateTime @default(now())
+}
