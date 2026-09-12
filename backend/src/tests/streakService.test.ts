@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import StreakService from '../src/services/streakService.js';
+import StreakService from '../services/streakService.js';
 
 describe('StreakService', () => {
   it('initializes streak to 1 on first activity ever', () => {

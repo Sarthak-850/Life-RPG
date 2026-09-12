@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import RPGEngine from '../src/services/rpgEngine.js';
+import RPGEngine from '../services/rpgEngine.js';
 
 describe('RPGEngine', () => {
   it('calculates non-linear XP thresholds correctly', () => {

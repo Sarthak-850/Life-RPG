@@ -45,11 +45,14 @@ export class ShopController {
       // Check achievements (e.g. FIRST_PURCHASE)
       const newAchievements = await AchievementService.checkAndUnlock(prisma, userId);
 
+      const finalCharacter = await prisma.character.findUnique({ where: { userId } });
+
       res.status(200).json({
         success: true,
         message: 'Item forged and added to your inventory!',
         inventoryEntry: result.inventoryEntry,
-        remainingGold: result.remainingGold,
+        remainingGold: finalCharacter?.gold ?? result.remainingGold,
+        character: finalCharacter,
         unlockedAchievements: newAchievements,
       });
     } catch (err: any) {

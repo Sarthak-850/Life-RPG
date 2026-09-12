@@ -1,15 +1,13 @@
 import { describe, it, expect, beforeAll } from 'vitest';
 import request from 'supertest';
-import { createApp } from '../src/app.js';
-import prisma from '../src/config/database.js';
+import { createApp } from '../app.js';
+import prisma from '../config/database.js';
 
 const app = createApp();
 
 describe('Life RPG Full-Stack API Integration Tests', () => {
   let userAToken: string;
-  let userAId: string;
   let userBToken: string;
-  let userBId: string;
   let questId: string;
   let itemId: string;
 
@@ -40,7 +38,6 @@ describe('Life RPG Full-Stack API Integration Tests', () => {
     expect(res.body.character.strength).toBe(10);
 
     userAToken = res.body.token;
-    userAId = res.body.user.id;
   });
 
   it('rejects duplicate email registration', async () => {
@@ -92,7 +89,6 @@ describe('Life RPG Full-Stack API Integration Tests', () => {
 
     expect(res.status).toBe(201);
     userBToken = res.body.token;
-    userBId = res.body.user.id;
   });
 
   it('creates a new quest with authoritative reward calculation', async () => {
@@ -167,17 +163,18 @@ describe('Life RPG Full-Stack API Integration Tests', () => {
     expect(noviceBlade).toBeDefined();
     itemId = noviceBlade.id;
 
-    // User A has 115 gold, Novice Blade costs 50 gold. Remaining: 65 gold.
+    // User A has 115 gold, Novice Blade costs 50 gold -> 65 gold.
+    // Plus FIRST_PURCHASE achievement automatically awards +40 gold -> 105 gold.
     const buyRes = await request(app)
       .post(`/api/shop/items/${itemId}/purchase`)
       .set('Authorization', `Bearer ${userAToken}`);
 
     expect(buyRes.status).toBe(200);
-    expect(buyRes.body.remainingGold).toBe(65);
+    expect(buyRes.body.remainingGold).toBe(105);
   });
 
   it('rejects purchase when gold is insufficient', async () => {
-    // User A has 40 gold left. Chrono Glaive costs 700 gold.
+    // User A has 65 gold left. Chrono Glaive costs 700 gold.
     const itemsRes = await request(app).get('/api/shop/items');
     const expensiveItem = itemsRes.body.items.find((i: any) => i.price > 100);
 
