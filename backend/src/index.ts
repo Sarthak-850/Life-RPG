@@ -3,7 +3,7 @@ import { ENV } from './config/env.js';
 
 const app = createApp();
 
-const server = app.listen(ENV.PORT, () => {
+const server = app.listen(ENV.PORT, '0.0.0.0', () => {
   console.log(`⚔️  Life RPG Engine listening on port ${ENV.PORT} [${ENV.NODE_ENV}]`);
   console.log(`🛡️  Health check available at http://localhost:${ENV.PORT}/api/health`);
 });
