@@ -1,0 +1,14 @@
+{
+  "name": "life-rpg-root",
+  "version": "1.0.0",
+  "description": "Life RPG - Full-Stack Cyber-Fantasy Gamified Productivity System",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "prisma:push": "npm --prefix backend run prisma:push",
+    "prisma:seed": "npm --prefix backend run prisma:seed",
+    "test": "npm --prefix backend run test"
+  },
+  "keywords": ["rpg", "gamification", "productivity", "react", "express", "prisma"]
+}
